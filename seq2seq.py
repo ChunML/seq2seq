@@ -1,6 +1,6 @@
 from __future__ import print_function
 from keras.models import Sequential
-from keras.layers import Activation, TimeDistributed, Dense, RepeatVector, recurrent
+from keras.layers import Activation, TimeDistributed, Dense, RepeatVector, recurrent, Embedding
 from keras.layers.recurrent import LSTM
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import text_to_word_sequence
@@ -11,8 +11,8 @@ import argparse
 ap = argparse.ArgumentParser()
 ap.add_argument('-max_len', type=int, default=200)
 ap.add_argument('-vocab_size', type=int, default=10000)
-ap.add_argument('-batch_size', type=int, default=10)
-ap.add_argument('-layer_num', type=int, default=3)
+ap.add_argument('-batch_size', type=int, default=100)
+ap.add_argument('-layer_num', type=int, default=1)
 ap.add_argument('-hidden_dim', type=int, default=500)
 ap.add_argument('-nb_epoch', type=int, default=20)
 ap.add_argument('-weights', default='')
@@ -66,14 +66,16 @@ def load_data(source, dist, max_len, vocab_size):
 
 def process_data(word_sentences, max_len, word_to_ix):
     sequences = np.zeros((len(word_sentences), max_len, len(word_to_ix)))
-    for sentence in word_sentences:
-        for i, word in enumerate(sentence):
-            sequences[:, i, word] = 1.
+    for i, sentence in enumerate(word_sentences):
+        for j, word in enumerate(sentence):
+            sequences[i, j, word] = 1.
     return sequences
 
 def create_model(X_vocab_len, X_max_len, y_vocab_len, y_max_len, hidden_size, num_layers):
     model = Sequential()
-    model.add(LSTM(hidden_size, input_shape=(X_max_len, X_vocab_len)))
+    model.add(Embedding(X_vocab_len, 1000, input_length=X_max_len, mask_zero=True))
+    model.add(LSTM(hidden_size))
+    #model.add(LSTM(hidden_size, input_shape=(X_max_len, X_vocab_len)))
     model.add(RepeatVector(y_max_len))
     for _ in range(num_layers):
         model.add(LSTM(hidden_size, return_sequences=True))
@@ -91,18 +93,15 @@ if __name__ == '__main__':
     X_max_len = max([len(sentence) for sentence in X])
     y_max_len = max([len(sentence) for sentence in y])
 
+    X = pad_sequences(X, maxlen=X_max_len, dtype='uint8')
+    y = pad_sequences(y, maxlen=y_max_len, dtype='uint8')
+
     print('[INFO] Compiling model...')
     model = create_model(X_vocab_len, X_max_len, y_vocab_len, y_max_len, HIDDEN_DIM, LAYER_NUM)
     for k in range(1, NB_EPOCH+1):
-        for i in range(0, len(X), 100):
-            padded_X = pad_sequences(X[i:i+100], maxlen=X_max_len, dtype='uint8')
-
-            padded_y = pad_sequences(y[i:i+100], maxlen=y_max_len, dtype='uint8')
-
-            X_sequences = process_data(padded_X, X_max_len, X_word_to_ix)
-
-            y_sequences = process_data(padded_y, y_max_len, y_word_to_ix)
+        for i in range(0, len(X), 1000):
+            y_sequences = process_data(y[i:i+1000], y_max_len, y_word_to_ix)
 
             print('[INFO] Training model: epoch {}th {}/{} samples'.format(k, i, len(X)))
-            model.fit(X_sequences, y_sequences, batch_size=BATCH_SIZE, nb_epoch=1, verbose=2)
+            model.fit(X[i:i+1000], y_sequences, batch_size=BATCH_SIZE, nb_epoch=1, verbose=2)
         model.save_weights('checkpoint_epoch_{}.hdf5'.format(k))
