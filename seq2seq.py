@@ -34,7 +34,7 @@ def load_data(source, dist, max_len, vocab_size):
     y_data = f.read()
     f.close()
 
-    X = [text_to_word_sequence(x) for x, y in zip(X_data.split('\n'), y_data.split('\n')) if len(x) <= max_len and len(y) <= max_len]
+    X = [text_to_word_sequence(x)[::-1] for x, y in zip(X_data.split('\n'), y_data.split('\n')) if len(x) <= max_len and len(y) <= max_len]
     y = [text_to_word_sequence(y) for x, y in zip(X_data.split('\n'), y_data.split('\n')) if len(x) <= max_len and len(y) <= max_len]
 
     dist = FreqDist(np.hstack(X))
@@ -43,7 +43,7 @@ def load_data(source, dist, max_len, vocab_size):
     y_vocab = dist.most_common(vocab_size-1)
 
     X_ix_to_word = [word[0] for word in X_vocab]
-    X_ix_to_word.append('UNK')
+    X_ix_to_word.insert(0, 'UNK')
     X_word_to_ix = {word:ix for ix, word in enumerate(X_ix_to_word)}
     for i, sentence in enumerate(X):
         for j, word in enumerate(sentence):
