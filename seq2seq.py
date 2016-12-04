@@ -9,11 +9,11 @@ from nltk import FreqDist
 import argparse
 
 ap = argparse.ArgumentParser()
-ap.add_argument('-max_len', type=int, default=200)
-ap.add_argument('-vocab_size', type=int, default=10000)
+ap.add_argument('-max_len', type=int, default=300)
+ap.add_argument('-vocab_size', type=int, default=20000)
 ap.add_argument('-batch_size', type=int, default=100)
-ap.add_argument('-layer_num', type=int, default=1)
-ap.add_argument('-hidden_dim', type=int, default=500)
+ap.add_argument('-layer_num', type=int, default=3)
+ap.add_argument('-hidden_dim', type=int, default=1000)
 ap.add_argument('-nb_epoch', type=int, default=20)
 ap.add_argument('-weights', default='')
 args = vars(ap.parse_args())
@@ -87,9 +87,9 @@ def create_model(X_vocab_len, X_max_len, y_vocab_len, y_max_len, hidden_size, nu
     return model
 
 if __name__ == '__main__':
-    
-    X, X_vocab_len, X_word_to_ix, X_ix_to_word, y, y_vocab_len, y_word_to_ix, y_ix_to_word = load_data('europarl-v8.fi-en.en', 'europarl-v8.fi-en.fi', MAX_LEN, VOCAB_SIZE)
-    
+
+    X, X_vocab_len, X_word_to_ix, X_ix_to_word, y, y_vocab_len, y_word_to_ix, y_ix_to_word = load_data('europarl-v7.fr-en.en', 'europarl-v7.fr-en.fr', MAX_LEN, VOCAB_SIZE)
+
     X_max_len = max([len(sentence) for sentence in X])
     y_max_len = max([len(sentence) for sentence in y])
 
@@ -98,10 +98,20 @@ if __name__ == '__main__':
 
     print('[INFO] Compiling model...')
     model = create_model(X_vocab_len, X_max_len, y_vocab_len, y_max_len, HIDDEN_DIM, LAYER_NUM)
+
+    i_end = 0
     for k in range(1, NB_EPOCH+1):
-        for i in range(0, len(X), 1000):
-            y_sequences = process_data(y[i:i+1000], y_max_len, y_word_to_ix)
+        indices = np.arange(len(X))
+        np.random.shuffle(indices)
+        X = X[indices]
+        y = y[indices]
+        for i in range(0, len(X), 1280):
+            if i + 1280 >= len(X):
+                i_end = len(X) - 1
+            else:
+                i_end = i + 1280
+            y_sequences = process_data(y[i:i_end], y_max_len, y_word_to_ix)
 
             print('[INFO] Training model: epoch {}th {}/{} samples'.format(k, i, len(X)))
-            model.fit(X[i:i+1000], y_sequences, batch_size=BATCH_SIZE, nb_epoch=1, verbose=2)
+            model.fit(X[i:i_end], y_sequences, batch_size=BATCH_SIZE, nb_epoch=1, verbose=2)
         model.save_weights('checkpoint_epoch_{}.hdf5'.format(k))
