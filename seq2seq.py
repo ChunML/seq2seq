@@ -16,7 +16,6 @@ ap.add_argument('-batch_size', type=int, default=100)
 ap.add_argument('-layer_num', type=int, default=3)
 ap.add_argument('-hidden_dim', type=int, default=1000)
 ap.add_argument('-nb_epoch', type=int, default=20)
-ap.add_argument('-weights', default='')
 args = vars(ap.parse_args())
 
 MAX_LEN = args['max_len']
@@ -25,7 +24,6 @@ BATCH_SIZE = args['batch_size']
 LAYER_NUM = args['layer_num']
 HIDDEN_DIM = args['hidden_dim']
 NB_EPOCH = args['nb_epoch']
-WEIGHTS = args['weights']
 
 def load_data(source, dist, max_len, vocab_size):
     f = open(source, 'r')
@@ -35,9 +33,13 @@ def load_data(source, dist, max_len, vocab_size):
     y_data = f.read()
     f.close()
 
-    X = [text_to_word_sequence(x)[::-1] for x, y in zip(X_data.split('\n')[:1000], y_data.split('\n')[:1000]) if len(x) <= max_len and len(y) <= max_len]
-    y = [text_to_word_sequence(y) for x, y in zip(X_data.split('\n')[:1000], y_data.split('\n')[:1000]) if len(x) <= max_len and len(y) <= max_len]
+    X = [text_to_word_sequence(x)[::-1] for x, y in zip(X_data.split('\n'), y_data.split('\n')) if len(x) > 0 and len(y) > 0 and len(x) <= max_len and len(y) <= max_len]
+    y = [text_to_word_sequence(y) for x, y in zip(X_data.split('\n'), y_data.split('\n')) if len(x) > 0 and len(y) > 0 and len(x) <= max_len and len(y) <= max_len]
 
+    print(len(X_data.split('\n')))
+    print(len(y_data.split('\n')))
+    print(len(X))
+    print(len(y))
     dist = FreqDist(np.hstack(X))
     X_vocab = dist.most_common(vocab_size-1)
     dist = FreqDist(np.hstack(y))
@@ -92,8 +94,9 @@ def create_model(X_vocab_len, X_max_len, y_vocab_len, y_max_len, hidden_size, nu
 
 if __name__ == '__main__':
 
-    X, X_vocab_len, X_word_to_ix, X_ix_to_word, y, y_vocab_len, y_word_to_ix, y_ix_to_word = load_data('europarl-v7.fr-en.en', 'europarl-v7.fr-en.fr', MAX_LEN, VOCAB_SIZE)
+    X, X_vocab_len, X_word_to_ix, X_ix_to_word, y, y_vocab_len, y_word_to_ix, y_ix_to_word = load_data('europarl-v8.fi-en.en', 'europarl-v8.fi-en.fi', MAX_LEN, VOCAB_SIZE)
 
+    #X, X_vocab_len, X_word_to_ix, X_ix_to_word, y, y_vocab_len, y_word_to_ix, y_ix_to_word = load_data('X', 'y', MAX_LEN, VOCAB_SIZE)
     X_max_len = max([len(sentence) for sentence in X])
     y_max_len = max([len(sentence) for sentence in y])
 
@@ -109,11 +112,11 @@ if __name__ == '__main__':
         np.random.shuffle(indices)
         X = X[indices]
         y = y[indices]
-        for i in range(0, len(X), 1280):
-            if i + 1280 >= len(X):
+        for i in range(0, len(X), 1000):
+            if i + 1000 >= len(X):
                 i_end = len(X)
             else:
-                i_end = i + 1280
+                i_end = i + 1000
             y_sequences = process_data(y[i:i_end], y_max_len, y_word_to_ix)
 
             print('[INFO] Training model: epoch {}th {}/{} samples'.format(k, i, len(X)))
