@@ -4,7 +4,7 @@ from keras.layers import Activation, TimeDistributed, Dense, RepeatVector, recur
 from keras.layers.recurrent import LSTM
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import text_to_word_sequence
-from keras.optimizers import Adam
+from keras.optimizers import Adam, RMSprop
 import numpy as np
 from nltk import FreqDist
 import argparse
@@ -87,9 +87,11 @@ def create_model(X_vocab_len, X_max_len, y_vocab_len, y_max_len, hidden_size, nu
     model.add(TimeDistributed(Dense(y_vocab_len)))
     model.add(Activation('softmax'))
     #adam = Adam(lr=0.001)
+    opt = RMSprop(lr=0.0003)
     model.compile(loss='categorical_crossentropy',
-            optimizer='rmsprop',
+            optimizer=opt,
             metrics=['accuracy'])
+    model.load_weights('checkpoint_epoch_10.hdf5')
     return model
 
 if __name__ == '__main__':
@@ -107,7 +109,7 @@ if __name__ == '__main__':
     model = create_model(X_vocab_len, X_max_len, y_vocab_len, y_max_len, HIDDEN_DIM, LAYER_NUM)
 
     i_end = 0
-    for k in range(1, NB_EPOCH+1):
+    for k in range(11, NB_EPOCH+1):
         indices = np.arange(len(X))
         np.random.shuffle(indices)
         X = X[indices]
