@@ -102,8 +102,8 @@ if __name__ == '__main__':
     X_max_len = max([len(sentence) for sentence in X])
     y_max_len = max([len(sentence) for sentence in y])
 
-    X = pad_sequences(X, maxlen=X_max_len, dtype='uint8')
-    y = pad_sequences(y, maxlen=y_max_len, dtype='uint8')
+    X = pad_sequences(X, maxlen=X_max_len, dtype='int32')
+    y = pad_sequences(y, maxlen=y_max_len, dtype='int32')
 
     print('[INFO] Compiling model...')
     model = create_model(X_vocab_len, X_max_len, y_vocab_len, y_max_len, HIDDEN_DIM, LAYER_NUM)
