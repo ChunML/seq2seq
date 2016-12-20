@@ -42,9 +42,9 @@ if __name__ == '__main__':
 
     if MODE == 'train':
         k_start = 0
-        if len(save_weights) != 0:
-            epoch = saved_weights[save_weights.rfind('_'+1):save_weights.rfind('.')]
-            model.load_weights(save_weights)
+        if len(saved_weights) != 0:
+            epoch = saved_weights[saved_weights.rfind('_')+1:saved_weights.rfind('.')]
+            model.load_weights(saved_weights)
             k_start = epoch + 1
 
         i_end = 0
@@ -64,10 +64,12 @@ if __name__ == '__main__':
                 model.fit(X[i:i_end], y_sequences, batch_size=BATCH_SIZE, nb_epoch=1, verbose=2)
             model.save_weights('checkpoint_epoch_{}.hdf5'.format(k))
     else:
-        if len(save_weights) == 0:
+        if len(saved_weights) == 0:
             print("The network hasn't been trained! Program will exit...")
             sys.exit()
         else:
-            X_test = load_test_data('test', X_word_to_ix)
-            model.load_weights(save_weights)
+            X_test = load_test_data('test', X_word_to_ix, MAX_LEN)
+            X_test = pad_sequences(X_test, maxlen=X_max_len, dtype='int32')
+            model.load_weights(saved_weights)
             y_pred = np.argmax(model.predict(X_test)[0], axis=1)
+            print(y_pred)
