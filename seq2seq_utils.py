@@ -9,6 +9,8 @@ import os
 import datetime
 
 def load_data(source, dist, max_len, vocab_size):
+
+    # Reading raw text from source and destination files
     f = open(source, 'r')
     X_data = f.read()
     f.close()
@@ -16,22 +18,27 @@ def load_data(source, dist, max_len, vocab_size):
     y_data = f.read()
     f.close()
 
+    # Splitting raw text into array of sequences
     X = [text_to_word_sequence(x)[::-1] for x, y in zip(X_data.split('\n'), y_data.split('\n')) if len(x) > 0 and len(y) > 0 and len(x) <= max_len and len(y) <= max_len]
     y = [text_to_word_sequence(y) for x, y in zip(X_data.split('\n'), y_data.split('\n')) if len(x) > 0 and len(y) > 0 and len(x) <= max_len and len(y) <= max_len]
 
-    print(len(X_data.split('\n')))
-    print(len(y_data.split('\n')))
-    print(len(X))
-    print(len(y))
+    # Creating the vocabulary set with the most common words
     dist = FreqDist(np.hstack(X))
     X_vocab = dist.most_common(vocab_size-1)
     dist = FreqDist(np.hstack(y))
     y_vocab = dist.most_common(vocab_size-1)
 
+    # Creating an array of words from the vocabulary set, we will use this array as index-to-word dictionary
     X_ix_to_word = [word[0] for word in X_vocab]
+    # Adding the word "ZERO" to the beginning of the array
     X_ix_to_word.insert(0, 'ZERO')
+    # Adding the word 'UNK' to the end of the array (stands for UNKNOWN words)
     X_ix_to_word.append('UNK')
+
+    # Creating the word-to-index dictionary from the array created above
     X_word_to_ix = {word:ix for ix, word in enumerate(X_ix_to_word)}
+
+    # Converting each word to its index value
     for i, sentence in enumerate(X):
         for j, word in enumerate(sentence):
             if word in X_word_to_ix:
@@ -67,20 +74,24 @@ def load_test_data(source, X_word_to_ix, max_len):
 
 def create_model(X_vocab_len, X_max_len, y_vocab_len, y_max_len, hidden_size, num_layers):
     model = Sequential()
+
+    # Creating encoder network
     model.add(Embedding(X_vocab_len, 1000, input_length=X_max_len, mask_zero=True))
     model.add(LSTM(hidden_size))
     model.add(RepeatVector(y_max_len))
+
+    # Creating decoder network
     for _ in range(num_layers):
         model.add(LSTM(hidden_size, return_sequences=True))
     model.add(TimeDistributed(Dense(y_vocab_len)))
     model.add(Activation('softmax'))
-    opt = RMSprop(lr=0.0003)
     model.compile(loss='categorical_crossentropy',
-            optimizer=opt,
+            optimizer='rmsprop',
             metrics=['accuracy'])
     return model
 
 def process_data(word_sentences, max_len, word_to_ix):
+    # Vectorizing each element in each sequence
     sequences = np.zeros((len(word_sentences), max_len, len(word_to_ix)))
     for i, sentence in enumerate(word_sentences):
         for j, word in enumerate(sentence):
