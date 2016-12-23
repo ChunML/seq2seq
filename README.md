@@ -41,7 +41,7 @@ python seq2seq.py
 
 ```python
 # Max length:= 300, number of recurrent layers:= 2, dimension of hidden state:= 500
-python seq2seq.py -max_len 300 layer_num 2 hidden_dim 500
+python seq2seq.py -max_len 300 -layer_num 2 -hidden_dim 500
 ```
 
 ### Test the model:
@@ -58,5 +58,5 @@ python seq2seq.py -mode test
 
 ```python
 # Max length:= 300, number of recurrent layers:= 2, dimension of hidden state:= 500
-python seq2seq.py -mode test -max_len 300 layer_num 2 hidden_dim 500
+python seq2seq.py -mode test -max_len 300 -layer_num 2 -hidden_dim 500
 ```
