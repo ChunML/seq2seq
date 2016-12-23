@@ -33,16 +33,16 @@ Default: train
 
 * With default settings:
 
-{% highlight python %}
+```python
 python seq2seq.py
-{% endhighlight %}
+```
 
 * With user-defined settings:
 
-{% highlight python %}
+```python
 # Max length:= 300, number of recurrent layers:= 2, dimension of hidden state:= 500
 python seq2seq.py -max_len 300 layer_num 2 hidden_dim 500
-{% endhighlight %}
+```
 
 ### Test the model:
 
@@ -50,13 +50,13 @@ The network must be trained at least once (trained weights must exist!).
 
 * If the network was trained with default settings:
 
-{% highlight python %}
+```python
 python seq2seq.py -mode test
-{% endhighlight %}
+```
 
 * If the network was trained with user-defined settings:
 
-{% highlight python %}
+```python
 # Max length:= 300, number of recurrent layers:= 2, dimension of hidden state:= 500
 python seq2seq.py -mode test -max_len 300 layer_num 2 hidden_dim 500
-{% endhighlight %}
+```
