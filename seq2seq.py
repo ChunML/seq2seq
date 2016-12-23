@@ -54,7 +54,7 @@ if __name__ == '__main__':
             print('[INFO] Saved weights found, loading...')
             epoch = saved_weights[saved_weights.rfind('_')+1:saved_weights.rfind('.')]
             model.load_weights(saved_weights)
-            k_start = epoch + 1
+            k_start = int(epoch) + 1
 
         i_end = 0
         for k in range(k_start, NB_EPOCH+1):
