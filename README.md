@@ -1,10 +1,12 @@
-A simple project to create a language translation model using Sequence To Sequence Learning Approach.
+### Introduction:
+
+This is my first attempt on a simple project to create a language translation model using Sequence To Sequence Learning Approach.
 
 Details can be found at my blog post here:
 
 * [Creating A Language Translation Model Using Sequence To Sequence Learning Approach](https://chunml.github.io/ChunML.github.io/project/Sequence-To-Sequence/)
 
-### Dataset
+### Dataset:
 
 I used the Europarl's Parallel Corpus for training. To get the source code to work immediately, you have to use the newest version (release v8 at the time of writing) at the link below (following the link will start a 180MB download):
 
