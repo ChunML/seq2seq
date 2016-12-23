@@ -90,7 +90,7 @@ if __name__ == '__main__':
             predictions = np.argmax(model.predict(X_test), axis=2)
             sequences = []
             for prediction in predictions:
-                sequence = ''.join([y_ix_to_word(index) for index in prediction if index > 0])
+                sequence = ' '.join([y_ix_to_word(index) for index in prediction if index > 0])
                 print(sequence)
                 sequences.append(sequence)
             np.savetxt('test_result', sequences, fmt='%s')
