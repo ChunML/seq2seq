@@ -86,5 +86,12 @@ if __name__ == '__main__':
             X_test = load_test_data('test', X_word_to_ix, MAX_LEN)
             X_test = pad_sequences(X_test, maxlen=X_max_len, dtype='int32')
             model.load_weights(saved_weights)
-            y_pred = np.argmax(model.predict(X_test)[0], axis=1)
-            print(y_pred)
+            
+            predictions = np.argmax(model.predict(X_test), axis=2)
+            sequences = []
+            for prediction in predictions:
+                sequence = ''.join([y_ix_to_word(index) for index in prediction if index > 0])
+                print(sequence)
+                sequences.append(sequence)
+            np.savetxt('test_result', sequences, fmt='%s')
+                
