@@ -22,7 +22,7 @@ Default: 200
 Default: 20000
 * batch_size: specify the batch size.  
 Default: 1000
-* layer_num: specify the number of recurrent layers in Encoder network.  
+* layer_num: specify the number of recurrent layers in Decoder network.  
 Default: 3
 * hidden_dim: specify the dimension of hidden state.  
 Default: 1000
