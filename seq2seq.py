@@ -23,11 +23,14 @@ LAYER_NUM = args['layer_num']
 HIDDEN_DIM = args['hidden_dim']
 NB_EPOCH = args['nb_epoch']
 MODE = args['mode']
+EngText = "europarl_split.en"	# first example 2000 sentences
+FiText = "europarl_split.fi"	# first example 2000 sentences
+
 
 if __name__ == '__main__':
     # Loading input sequences, output sequences and the necessary mapping dictionaries
     print('[INFO] Loading data...')
-    X, X_vocab_len, X_word_to_ix, X_ix_to_word, y, y_vocab_len, y_word_to_ix, y_ix_to_word = load_data('europarl-v8.fi-en.en', 'europarl-v8.fi-en.fi', MAX_LEN, VOCAB_SIZE)
+    X, X_vocab_len, X_word_to_ix, X_ix_to_word, y, y_vocab_len, y_word_to_ix, y_ix_to_word = load_data(EngText, FiText, MAX_LEN, VOCAB_SIZE)
 
     # Finding the length of the longest sequence
     X_max_len = max([len(sentence) for sentence in X])
